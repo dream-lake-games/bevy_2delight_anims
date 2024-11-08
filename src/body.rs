@@ -78,6 +78,7 @@ impl<StateMachine: AnimStateMachine> AnimBodyBundle<StateMachine> {
         flip_x: bool,
         flip_y: bool,
         visible: bool,
+        render_layers_override: Option<RenderLayers>,
         world: &mut DeferredWorld,
     ) -> Self {
         let data = state.get_body();
@@ -105,11 +106,13 @@ impl<StateMachine: AnimStateMachine> AnimBodyBundle<StateMachine> {
                 },
                 ..default()
             },
-            render_layers: data.render_layers.unwrap_or(
-                world
-                    .resource::<AnimDefaults>()
-                    .default_render_layers
-                    .clone(),
+            render_layers: render_layers_override.unwrap_or(
+                data.render_layers.unwrap_or(
+                    world
+                        .resource::<AnimDefaults>()
+                        .default_render_layers
+                        .clone(),
+                ),
             ),
             index: BodyState {
                 ix: 0,

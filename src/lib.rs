@@ -33,8 +33,9 @@ pub enum AnimNextState<NextType> {
 }
 
 /// An event that is triggered when the given state changes. Must be observed.
-#[derive(Event, Clone, Copy, Debug, Default, Eq, Hash, PartialEq, Reflect)]
+#[derive(Event, Clone, Copy, Debug, Eq, Hash, PartialEq, Reflect)]
 pub struct AnimStateChange<StateMachine: AnimStateMachine> {
+    pub eid: Entity,
     pub prev: Option<StateMachine>,
     pub next: StateMachine,
 }

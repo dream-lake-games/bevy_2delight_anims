@@ -33,10 +33,10 @@ fn progress_animations<StateMachine: AnimStateMachine, AnimTime: AnimTimeProvide
     defaults: Res<AnimDefaults>,
     anim_time: Res<AnimTime>,
 ) {
-    let time_class = StateMachine::get_time_class().unwrap_or(defaults.default_time_class);
-    let time_delta = anim_time.get_delta(time_class);
-
     for (anim_eid, mut anim_man) in &mut anims {
+        let time_class =
+            StateMachine::get_default_time_class().unwrap_or(defaults.default_time_class);
+        let time_delta = anim_time.get_delta(time_class);
         // If the reset_state is not None, it means `.reset_state` has been called.
         // This state should take precedence over any state/ix that would arise from
         // just naturally playing animations
@@ -143,6 +143,7 @@ fn drive_animations<StateMachine: AnimStateMachine>(
             // Trigger a change if being observed
             if anim_man.observe_state_changes {
                 commands.trigger(AnimStateChange {
+                    eid,
                     prev: Some(anim_man.state),
                     next: reset.state,
                 });

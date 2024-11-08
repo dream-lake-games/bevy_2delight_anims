@@ -8,7 +8,7 @@ impl Into<RenderLayers> for MainLayer {
     }
 }
 
-const FAKE_ARBITRARY_TIME_CLASS: i32 = 0;
+const FAKE_ARBITRARY_TIME_CLASS: AnimTimeClass = 0;
 
 derive_anim!(
     #[time_class(FAKE_ARBITRARY_TIME_CLASS)]

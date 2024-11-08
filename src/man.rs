@@ -1,4 +1,5 @@
 use bevy::reflect::Reflect;
+use bevy::render::view::RenderLayers;
 use bevy::{prelude::*, utils::HashMap};
 
 use crate::body::AnimBodyBundle;
@@ -29,6 +30,10 @@ pub struct AnimMan<StateMachine: AnimStateMachine> {
     pub(crate) observe_state_changes: bool,
     /// Should the `AnimIxChange` event be triggered?
     pub(crate) observe_ix_changes: bool,
+    /// Use this render layer instead of that specified in the animation
+    pub(crate) render_layers: Option<RenderLayers>,
+    /// Is this animation guaranteed to only use one state? If so, only spawn one child
+    pub(crate) singular: bool,
     /// INTERNAL: The entities of the spawned body children
     pub(crate) tagged_children: HashMap<StateMachine, Entity>,
 }
@@ -46,6 +51,8 @@ impl<StateMachine: AnimStateMachine> Default for AnimMan<StateMachine> {
             flip_y: false,
             observe_state_changes: false,
             observe_ix_changes: false,
+            render_layers: None,
+            singular: false,
             tagged_children: default(),
         }
     }
@@ -67,21 +74,31 @@ impl<StateMachine: AnimStateMachine> AnimMan<StateMachine> {
         self.reset_state.as_mut().unwrap().state = val;
         self
     }
-    pub fn with_flip_x(mut self) -> Self {
-        self.flip_x = true;
+    pub fn with_flip_x(mut self, val: bool) -> Self {
+        self.flip_x = val;
         self.reset_flip = true;
         self
     }
-    pub fn with_flip_y(mut self) -> Self {
-        self.flip_y = true;
+    pub fn with_flip_y(mut self, val: bool) -> Self {
+        self.flip_y = val;
         self.reset_flip = true;
         self
     }
     impl_with_on!(observe_state_changes);
     impl_with_on!(observe_ix_changes);
+    pub fn with_render_layers(mut self, rl: RenderLayers) -> Self {
+        self.render_layers = Some(rl);
+        self
+    }
+    impl_with_on!(singular);
 }
 impl<StateMachine: AnimStateMachine> AnimMan<StateMachine> {
-    impl_get_copy!(state, StateMachine);
+    pub fn get_state(&self) -> StateMachine {
+        self.reset_state
+            .as_ref()
+            .map(|reset| reset.state)
+            .unwrap_or(self.state)
+    }
     impl_get_copy!(flip_x, bool);
     impl_get_copy!(flip_y, bool);
 
@@ -132,10 +149,21 @@ impl<StateMachine: AnimStateMachine> Component for AnimMan<StateMachine> {
             let flip_x = myself.flip_x;
             let flip_y = myself.flip_y;
             let my_state = myself.state;
+            let render_layers_override = myself.render_layers.clone();
+            let singular = myself.singular;
             let mut tagged_children = HashMap::default();
             for state in StateMachine::all().into_iter() {
-                let bund =
-                    AnimBodyBundle::new(state, flip_x, flip_y, state == my_state, &mut world);
+                if singular && state != my_state {
+                    continue;
+                }
+                let bund = AnimBodyBundle::new(
+                    state,
+                    flip_x,
+                    flip_y,
+                    state == my_state,
+                    render_layers_override.clone(),
+                    &mut world,
+                );
                 let mut commands = world.commands();
                 let mut ent_comms = commands.spawn(bund);
                 ent_comms.set_parent(eid);
@@ -144,7 +172,7 @@ impl<StateMachine: AnimStateMachine> Component for AnimMan<StateMachine> {
             }
             let mut mut_myself = world
                 .get_mut::<Self>(eid)
-                .expect("ANimState: on_add hook should have myself2");
+                .expect("AnimState: on_add hook should have myself2");
             mut_myself.tagged_children = tagged_children;
         });
     }

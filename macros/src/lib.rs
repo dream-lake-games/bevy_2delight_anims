@@ -51,7 +51,7 @@ pub fn anim_state_machine_derive(input: proc_macro::TokenStream) -> proc_macro::
                 vec![#(#variant_idents)*]
             }
 
-            fn get_time_class() -> Option<i32> {
+            fn get_default_time_class() -> Option<AnimTimeClass> {
                 #time_class
             }
 
@@ -72,29 +72,20 @@ pub fn anim_state_machine_derive(input: proc_macro::TokenStream) -> proc_macro::
 }
 
 fn make_time_class(time_class: Option<&syn::Attribute>) -> proc_macro2::TokenStream {
-    let path = time_class.map(|time_class| {
-        match time_class
-            .parse_meta()
-            .expect("Cannot parse #[time_class...] attribute")
-        {
-            syn::Meta::List(syn::MetaList { nested, .. }) if nested.len() == 1 => {
-                match nested.first().unwrap() {
-                    syn::NestedMeta::Meta(syn::Meta::Path(p)) => {
-                        quote! { #p }
-                    }
-                    _ => panic!("#[time_class(TimeClass::Variant)] is expected"),
+    match time_class {
+        Some(time_class) => {
+            match time_class
+                .parse_meta()
+                .expect("Cannot parse #[time_class...] attribute")
+            {
+                syn::Meta::List(syn::MetaList { nested, .. }) if nested.len() == 1 => {
+                    let first = nested.first().unwrap();
+                    return quote! { Some(#first) };
                 }
+                _ => panic!("#[time_class...] attribute should take the form #[time_class(ident)]"),
             }
-            _ => panic!("#[time_class...] attribute should take the form #[time_class(ident)]"),
         }
-    });
-    match path {
-        Some(token_stream) => quote! {
-            Some(#token_stream as i32)
-        },
-        None => quote! {
-            None
-        },
+        None => quote! { None },
     }
 }
 
@@ -108,6 +99,7 @@ fn make_data_match(variant: &syn::Variant) -> proc_macro2::TokenStream {
     let offset = find_optional_attr!(variant, "offset");
     let zix = find_optional_attr!(variant, "zix");
     let render_layers = find_optional_attr!(variant, "render_layers");
+    let time_class = find_optional_attr!(variant, "time_class");
 
     let file = match file
         .parse_meta()
@@ -240,6 +232,20 @@ fn make_data_match(variant: &syn::Variant) -> proc_macro2::TokenStream {
             }
             _ => panic!("#[render_layers...] attribute should take the form #[render_layers(ident, ident...)]"),
         }
+    }
+    let time_class = time_class.map(|time_class| {
+        match time_class
+            .parse_meta()
+            .expect("Cannot parse #[time_class...] attribute")
+        {
+            syn::Meta::List(syn::MetaList { nested, .. }) if nested.len() == 1 => {
+                nested.first().unwrap().clone()
+            }
+            _ => panic!(r#"#[time_class...] attribute should take the form #[time_class(ident)]"#),
+        }
+    });
+    if time_class.is_some() {
+        todo!("Time class per body :/");
     }
 
     quote! {

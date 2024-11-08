@@ -2,7 +2,7 @@ use bevy::prelude::Resource;
 
 use crate::{plugin::DEFAULT_TIME_CLASS, traits::AnimTimeProvider};
 
-#[derive(Resource, Default)]
+#[derive(Resource, Debug, Default)]
 pub struct AnimPlaceholderTime {
     pub(crate) real_time_delta: f32,
 }

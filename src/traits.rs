@@ -23,13 +23,13 @@ pub trait AnimStateMachine:
 {
     fn all() -> Vec<Self>;
 
-    fn get_time_class() -> Option<i32>;
+    fn get_default_time_class() -> Option<i32>;
 
     fn get_body(&self) -> AnimBody;
 
     fn get_next(&self) -> AnimNextState<Self>;
 }
 
-pub trait AnimTimeProvider: Resource + Default {
+pub trait AnimTimeProvider: Resource + std::fmt::Debug + Default {
     fn get_delta(&self, class: i32) -> f32;
 }
