@@ -12,6 +12,8 @@ pub(crate) struct AnimMat {
     ix_length_flipx_flipy: Vec4, // NOTE: 1.0 = don't flip, -1.0 = flip
     #[uniform(4)]
     rgba: Vec4,
+    #[uniform(5)]
+    repx_repy_unused_unused: Vec4,
 }
 impl AnimMat {
     const fn flip_to_mul(val: bool) -> f32 {
@@ -22,7 +24,14 @@ impl AnimMat {
         }
     }
 
-    pub(crate) fn new(texture: Handle<Image>, length: u32, flip_x: bool, flip_y: bool) -> Self {
+    pub(crate) fn new(
+        texture: Handle<Image>,
+        length: u32,
+        flip_x: bool,
+        flip_y: bool,
+        rep_x: f32,
+        rep_y: f32,
+    ) -> Self {
         let srgba_thing = Srgba::rgb_u8(255, 255, 255);
         Self {
             texture,
@@ -38,6 +47,7 @@ impl AnimMat {
                 srgba_thing.blue,
                 srgba_thing.alpha,
             ),
+            repx_repy_unused_unused: Vec4::new(rep_x, rep_y, 0.0, 0.0),
         }
     }
 

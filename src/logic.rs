@@ -134,12 +134,12 @@ fn drive_animations<StateMachine: AnimStateMachine>(
             let (mut old_body, mut old_vis, old_hand) = bodies
                 .get_mut(anim_man.tagged_children[&anim_man.state])
                 .expect("tagged_children looks off in drive_animations1");
-            old_body.ix = 0;
+            // old_body.ix = 0;
             *old_vis = Visibility::Hidden;
-            let old_mat = mats
-                .get_mut(old_hand.id())
-                .expect("drive_animations: bodies should have AnimMats1");
-            old_mat.set_ix(old_body.ix);
+            // let old_mat = mats
+            //     .get_mut(old_hand.id())
+            //     .expect("drive_animations: bodies should have AnimMats1");
+            // old_mat.set_ix(old_body.ix);
             // Trigger a change if being observed
             if anim_man.observe_state_changes {
                 commands.trigger(AnimStateChange {

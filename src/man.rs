@@ -26,6 +26,10 @@ pub struct AnimMan<StateMachine: AnimStateMachine> {
     pub(crate) flip_x: bool,
     /// Flips y-axis of the animation
     pub(crate) flip_y: bool,
+    /// Repeat this animation x
+    pub(crate) rep_x: u32,
+    /// Repeat this animation y
+    pub(crate) rep_y: u32,
     /// Should the `AnimStateChange` event be triggered?
     pub(crate) observe_state_changes: bool,
     /// Should the `AnimIxChange` event be triggered?
@@ -49,6 +53,8 @@ impl<StateMachine: AnimStateMachine> Default for AnimMan<StateMachine> {
             reset_flip: false,
             flip_x: false,
             flip_y: false,
+            rep_x: 1,
+            rep_y: 1,
             observe_state_changes: false,
             observe_ix_changes: false,
             render_layers: None,
@@ -84,6 +90,14 @@ impl<StateMachine: AnimStateMachine> AnimMan<StateMachine> {
         self.reset_flip = true;
         self
     }
+    pub fn with_rep_x(mut self, val: u32) -> Self {
+        self.rep_x = val;
+        self
+    }
+    pub fn with_rep_y(mut self, val: u32) -> Self {
+        self.rep_y = val;
+        self
+    }
     impl_with_on!(observe_state_changes);
     impl_with_on!(observe_ix_changes);
     pub fn with_render_layers(mut self, rl: RenderLayers) -> Self {
@@ -101,6 +115,8 @@ impl<StateMachine: AnimStateMachine> AnimMan<StateMachine> {
     }
     impl_get_copy!(flip_x, bool);
     impl_get_copy!(flip_y, bool);
+    impl_get_copy!(rep_x, u32);
+    impl_get_copy!(rep_y, u32);
 
     /// If the given state is equal to the current state, nothing happens.
     /// Otherwise, the state is changed to the given state, and the animation is reset to the first frame.
@@ -148,6 +164,8 @@ impl<StateMachine: AnimStateMachine> Component for AnimMan<StateMachine> {
                 .expect("AnimState: on_add hook should have myself");
             let flip_x = myself.flip_x;
             let flip_y = myself.flip_y;
+            let rep_x = myself.rep_x;
+            let rep_y = myself.rep_y;
             let my_state = myself.state;
             let render_layers_override = myself.render_layers.clone();
             let singular = myself.singular;
@@ -160,6 +178,8 @@ impl<StateMachine: AnimStateMachine> Component for AnimMan<StateMachine> {
                     state,
                     flip_x,
                     flip_y,
+                    rep_x,
+                    rep_y,
                     state == my_state,
                     render_layers_override.clone(),
                     &mut world,

@@ -77,13 +77,18 @@ impl<StateMachine: AnimStateMachine> AnimBodyBundle<StateMachine> {
         state: StateMachine,
         flip_x: bool,
         flip_y: bool,
+        rep_x: u32,
+        rep_y: u32,
         visible: bool,
         render_layers_override: Option<RenderLayers>,
         world: &mut DeferredWorld,
     ) -> Self {
         let data = state.get_body();
         let next = state.get_next();
-        let mesh = Mesh::from(Rectangle::new(data.size.x as f32, data.size.y as f32));
+        let mesh = Mesh::from(Rectangle::new(
+            data.size.x as f32 * rep_x as f32,
+            data.size.y as f32 * rep_y as f32,
+        ));
         let texture = world.resource::<AssetServer>().load(data.file);
         Self {
             name: Name::new(format!("AnimBody_{state:?}")),
@@ -93,6 +98,8 @@ impl<StateMachine: AnimStateMachine> AnimBodyBundle<StateMachine> {
                 data.length,
                 flip_x,
                 flip_y,
+                rep_x as f32,
+                rep_y as f32,
             )),
             spatial: SpatialBundle {
                 transform: Transform {

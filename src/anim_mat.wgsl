@@ -8,6 +8,8 @@ var splr: sampler;
 var<uniform> ix_length_flipx_flipy: vec4<f32>;
 @group(2) @binding(4)
 var<uniform> rgba: vec4<f32>;
+@group(2) @binding(5)
+var<uniform> repx_repy_unused_unused: vec4<f32>;
 
 @fragment
 fn fragment(in: VertexOutput) -> @location(0) vec4<f32> {
@@ -16,6 +18,8 @@ fn fragment(in: VertexOutput) -> @location(0) vec4<f32> {
     let length = ix_length_flipx_flipy[1];
     let flipx = ix_length_flipx_flipy[2];
     let flipy = ix_length_flipx_flipy[3];
+    let repx = repx_repy_unused_unused[0];
+    let repy = repx_repy_unused_unused[1];
     let r = rgba[0];
     let g = rgba[1];
     let b = rgba[2];
@@ -25,7 +29,8 @@ fn fragment(in: VertexOutput) -> @location(0) vec4<f32> {
     let flipped_in = vec2<f32>((1.0 + flipx * in.uv.x) % 1.0, (1.0 + flipy * in.uv.y) % 1.0);
     let index_lower = (1.0 / length) * (ix + 0);
     let index_upper = (1.0 / length) * (ix + 1);
-    let out_uv = vec2<f32>(index_lower + (index_upper - index_lower) * flipped_in.x, flipped_in.y);
+    let ixed = index_lower + (index_upper - index_lower) * (flipped_in.x * repx % 1.0);
+    let out_uv = vec2<f32>(ixed, flipped_in.y * repy % 1.0);
     let out_rgba = textureSample(texture, splr, out_uv);
 
     // Apply color
