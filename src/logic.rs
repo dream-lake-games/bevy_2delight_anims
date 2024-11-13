@@ -131,7 +131,7 @@ fn drive_animations<StateMachine: AnimStateMachine>(
         );
         if reset.state != anim_man.state {
             // Hide and reset the last body when changing states
-            let (mut old_body, mut old_vis, old_hand) = bodies
+            let (mut _old_body, mut old_vis, _old_hand) = bodies
                 .get_mut(anim_man.tagged_children[&anim_man.state])
                 .expect("tagged_children looks off in drive_animations1");
             // old_body.ix = 0;
