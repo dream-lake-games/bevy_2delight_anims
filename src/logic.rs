@@ -69,8 +69,12 @@ fn progress_animations<StateMachine: AnimStateMachine, AnimTime: AnimTimeProvide
                                 .expect("Anim missing body2");
                         }
                         AnimNextState::Despawn => {
-                            commands.entity(anim_eid).despawn_recursive();
-                            despawned_or_removed = true;
+                            if despawned_or_removed == false {
+                                if let Some(comms) = commands.get_entity(anim_eid) {
+                                    comms.despawn_recursive();
+                                }
+                                despawned_or_removed = true;
+                            }
                         }
                         AnimNextState::Remove => {
                             for body in anim_man.tagged_children.values() {
@@ -142,11 +146,13 @@ fn drive_animations<StateMachine: AnimStateMachine>(
             // old_mat.set_ix(old_body.ix);
             // Trigger a change if being observed
             if anim_man.observe_state_changes {
-                commands.trigger(AnimStateChange {
+                commands.trigger_targets(
+                    AnimStateChange {
+                        prev: Some(anim_man.state),
+                        next: reset.state,
+                    },
                     eid,
-                    prev: Some(anim_man.state),
-                    next: reset.state,
-                });
+                );
             }
         }
         // NEW BODY RHUMBA
@@ -165,10 +171,13 @@ fn drive_animations<StateMachine: AnimStateMachine>(
         // TODO(maybe): If the game gets really laggy, it may progress more than one ix per frame
         // Right now, this will only trigger once. It'd be better to trigger on every missed ix.
         if anim_man.observe_ix_changes {
-            commands.trigger(AnimIxChange {
-                state: reset.state,
-                ix: reset.ix,
-            });
+            commands.trigger_targets(
+                AnimIxChange {
+                    state: reset.state,
+                    ix: reset.ix,
+                },
+                eid,
+            );
         }
         // Cleanup
         anim_man.state = reset.state;

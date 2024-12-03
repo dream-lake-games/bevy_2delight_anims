@@ -37,6 +37,7 @@ pub struct AnimMan<StateMachine: AnimStateMachine> {
     /// Use this render layer instead of that specified in the animation
     pub(crate) render_layers: Option<RenderLayers>,
     /// Is this animation guaranteed to only use one state? If so, only spawn one child
+    /// TODO: Deprecate this is stupid (I think)
     pub(crate) singular: bool,
     /// INTERNAL: The entities of the spawned body children
     pub(crate) tagged_children: HashMap<StateMachine, Entity>,
@@ -78,6 +79,12 @@ impl<StateMachine: AnimStateMachine> AnimMan<StateMachine> {
     pub fn with_state(mut self, val: StateMachine) -> Self {
         self.state = val;
         self.reset_state.as_mut().unwrap().state = val;
+        self
+    }
+    pub fn with_initial_ix(mut self, ix: u32) -> Self {
+        if let Some(reset_state) = self.reset_state.as_mut() {
+            reset_state.ix = ix;
+        }
         self
     }
     pub fn with_flip_x(mut self, val: bool) -> Self {
