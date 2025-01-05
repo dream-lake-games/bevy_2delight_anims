@@ -68,4 +68,8 @@ impl Material2d for AnimMat {
     fn fragment_shader() -> ShaderRef {
         "embedded://bevy_2delight_anims/anim_mat.wgsl".into()
     }
+
+    fn alpha_mode(&self) -> bevy::sprite::AlphaMode2d {
+        bevy::sprite::AlphaMode2d::Blend
+    }
 }
