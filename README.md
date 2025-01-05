@@ -10,6 +10,14 @@ This crate aims to make it easy to have 2d animations in bevy games which are dr
 2. Correctness - No bugs.
 3. Performance.
 
+## Compatibility
+
+| bevy | bevy_2delight_anims |
+|------|---------------------|
+| 0.15 | 0.2                 |
+| 0.14 | 0.1                 |
+| ...  | unsupported :/      |
+
 ## Quickstart
 
 Here is an example showing all of the attributes you can put on an animation:
