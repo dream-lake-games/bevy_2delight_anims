@@ -125,7 +125,7 @@ fn drive_animations<StateMachine: AnimStateMachine>(
     mut bodies: Query<(
         &mut BodyState<StateMachine>,
         &mut Visibility,
-        &Handle<AnimMat>,
+        &MeshMaterial2d<AnimMat>,
     )>,
     mut mats: ResMut<Assets<AnimMat>>,
 ) {
@@ -191,7 +191,7 @@ fn drive_animations<StateMachine: AnimStateMachine>(
 fn drive_flips<StateMachine: AnimStateMachine>(
     mut commands: Commands,
     mut anims: Query<(Entity, &mut AnimMan<StateMachine>), With<NeedsMatFlipUpdate<StateMachine>>>,
-    bodies: Query<&Handle<AnimMat>, With<BodyState<StateMachine>>>,
+    bodies: Query<&MeshMaterial2d<AnimMat>, With<BodyState<StateMachine>>>,
     mut mats: ResMut<Assets<AnimMat>>,
 ) {
     for (eid, mut anim_man) in &mut anims {

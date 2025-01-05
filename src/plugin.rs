@@ -41,7 +41,7 @@ pub(crate) fn update_placeholder_time(
     time: Res<Time>,
     mut placeholder_time: ResMut<AnimPlaceholderTime>,
 ) {
-    placeholder_time.real_time_delta = time.delta_seconds();
+    placeholder_time.real_time_delta = time.delta_secs();
 }
 
 pub struct AnimPlugin<AnimTime: AnimTimeProvider = AnimPlaceholderTime> {

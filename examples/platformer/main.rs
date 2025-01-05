@@ -37,8 +37,8 @@ fn main() {
     app.add_systems(Startup, startup);
     app.add_systems(Update, flips);
 
-    app.observe(lenny_anim_state_change);
-    app.observe(lenny_anim_ix_change);
+    app.add_observer(lenny_anim_state_change);
+    app.add_observer(lenny_anim_ix_change);
 
     // Have fun!
     app.run();

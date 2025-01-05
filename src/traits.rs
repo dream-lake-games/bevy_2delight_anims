@@ -1,6 +1,6 @@
 use bevy::{
     prelude::Resource,
-    reflect::{FromReflect, GetTypeRegistration, Reflect, TypePath},
+    reflect::{FromReflect, Reflectable},
 };
 
 use crate::{body::AnimBody, AnimNextState};
@@ -15,10 +15,8 @@ pub trait AnimStateMachine:
     + Eq
     + Copy
     + Default
-    + Reflect
     + FromReflect
-    + TypePath
-    + GetTypeRegistration
+    + Reflectable
     + std::fmt::Debug
 {
     fn all() -> Vec<Self>;

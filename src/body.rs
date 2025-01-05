@@ -1,5 +1,5 @@
 use bevy::ecs::world::DeferredWorld;
-use bevy::{prelude::*, render::view::RenderLayers, sprite::Mesh2dHandle};
+use bevy::{prelude::*, render::view::RenderLayers};
 
 use crate::lazy::{impl_get_ref, impl_with};
 use crate::mat::AnimMat;
@@ -66,9 +66,10 @@ pub(crate) struct BodyState<StateMachine: AnimStateMachine> {
 #[derive(Bundle, Clone)]
 pub(crate) struct AnimBodyBundle<StateMachine: AnimStateMachine> {
     name: Name,
-    mesh: Mesh2dHandle,
-    material: Handle<AnimMat>,
-    spatial: SpatialBundle,
+    mesh: Mesh2d,
+    material: MeshMaterial2d<AnimMat>,
+    transform: Transform,
+    visibility: Visibility,
     render_layers: RenderLayers,
     index: BodyState<StateMachine>,
 }
@@ -92,26 +93,23 @@ impl<StateMachine: AnimStateMachine> AnimBodyBundle<StateMachine> {
         let texture = world.resource::<AssetServer>().load(data.file);
         Self {
             name: Name::new(format!("AnimBody_{state:?}")),
-            mesh: world.resource_mut::<Assets<Mesh>>().add(mesh).into(),
-            material: world.resource_mut::<Assets<AnimMat>>().add(AnimMat::new(
+            mesh: Mesh2d(world.resource_mut::<Assets<Mesh>>().add(mesh)),
+            material: MeshMaterial2d(world.resource_mut::<Assets<AnimMat>>().add(AnimMat::new(
                 texture,
                 data.length,
                 flip_x,
                 flip_y,
                 rep_x as f32,
                 rep_y as f32,
-            )),
-            spatial: SpatialBundle {
-                transform: Transform {
-                    translation: data.offset.extend(data.zix),
-                    ..default()
-                },
-                visibility: if visible {
-                    Visibility::Inherited
-                } else {
-                    Visibility::Hidden
-                },
+            ))),
+            transform: Transform {
+                translation: data.offset.extend(data.zix),
                 ..default()
+            },
+            visibility: if visible {
+                Visibility::Inherited
+            } else {
+                Visibility::Hidden
             },
             render_layers: render_layers_override.unwrap_or(
                 data.render_layers.unwrap_or(
