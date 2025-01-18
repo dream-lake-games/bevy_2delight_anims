@@ -8,6 +8,7 @@ use bevy::sprite::Material2dPlugin;
 use crate::lazy::impl_with;
 use crate::logic::register_logic;
 use crate::man::AnimMan;
+use crate::mesh::AnimQuickMesh;
 use crate::time::AnimPlaceholderTime;
 use crate::traits::{AnimStateMachine, AnimTimeProvider};
 
@@ -80,6 +81,7 @@ impl<AnimTime: AnimTimeProvider> Plugin for AnimPlugin<AnimTime> {
             default_time_class: self.default_time_class,
         });
         app.insert_resource(AnimPlaceholderTime::default());
+        app.insert_resource(AnimQuickMesh::default());
 
         app.add_systems(Update, update_placeholder_time.in_set(crate::AnimSet));
     }

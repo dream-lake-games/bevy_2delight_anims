@@ -3,6 +3,7 @@ use bevy::{prelude::*, render::view::RenderLayers};
 
 use crate::lazy::{impl_get_ref, impl_with};
 use crate::mat::AnimMat;
+use crate::mesh::AnimQuickMesh;
 use crate::plugin::AnimDefaults;
 use crate::traits::AnimStateMachine;
 use crate::AnimNextState;
@@ -86,14 +87,15 @@ impl<StateMachine: AnimStateMachine> AnimBodyBundle<StateMachine> {
     ) -> Self {
         let data = state.get_body();
         let next = state.get_next();
-        let mesh = Mesh::from(Rectangle::new(
-            data.size.x as f32 * rep_x as f32,
-            data.size.y as f32 * rep_y as f32,
-        ));
+        let mesh2d = AnimQuickMesh::get_or_make_mesh2d_from_world(
+            world,
+            data.size,
+            UVec2::new(rep_x, rep_y),
+        );
         let texture = world.resource::<AssetServer>().load(data.file);
         Self {
             name: Name::new(format!("AnimBody_{state:?}")),
-            mesh: Mesh2d(world.resource_mut::<Assets<Mesh>>().add(mesh)),
+            mesh: mesh2d,
             material: MeshMaterial2d(world.resource_mut::<Assets<AnimMat>>().add(AnimMat::new(
                 texture,
                 data.length,
