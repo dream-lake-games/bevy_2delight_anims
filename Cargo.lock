@@ -470,7 +470,7 @@ dependencies = [
 
 [[package]]
 name = "bevy_2delight_anims"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "bevy 0.15.1",
  "bevy-inspector-egui",
